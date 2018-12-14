@@ -1,0 +1,24 @@
+{
+    "name": "jizhenya/nuclear",
+    "description": "simple framwork",
+    "type": "project",
+    "require": {
+        "zoujingli/ip2region": "^1.0",
+        "guzzlehttp/guzzle": "^6.3",
+        "hashids/hashids": "^3.0",
+        "intervention/image": "^2.4",
+        "phpmailer/phpmailer": "^6.0",
+        "monolog/monolog": "^1.24",
+        "catfan/medoo": "^1.6",
+        "nesbot/carbon": "^2.7",
+        "phpoffice/phpspreadsheet": "^1.5",
+        "topthink/think-orm": "^1.2"
+    },
+    "license": "BSD",
+    "authors": [
+        {
+            "name": "jizhenya",
+            "email": "zhenya.ji@hotmail.com"
+        }
+    ]
+}
