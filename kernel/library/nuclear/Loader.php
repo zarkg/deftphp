@@ -2,6 +2,12 @@
 
 namespace nuclear;
 
+/**
+ * 自动加载类
+ *
+ * @package nuclear
+ * @author zarkg <admin@zarkg.com>
+ */
 class Loader
 {
     /**
