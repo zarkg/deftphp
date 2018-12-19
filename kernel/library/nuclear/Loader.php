@@ -243,7 +243,7 @@ class Loader
             }
 
             // 合并composer属性
-            $properties = ['classMap','files','prefixLengthsPsr4','prefixDirsPsr4','fallbackDirsPsr4','prefixesPsr0','fallbackDirsPsr0'];
+            $properties = ['classMap', 'files', 'prefixLengthsPsr4', 'prefixDirsPsr4', 'fallbackDirsPsr4', 'prefixesPsr0', 'fallbackDirsPsr0'];
             foreach ($properties as $property) {
                 if (property_exists($composerClass, $property)) {
                     self::${$property} = $composerClass::${$property};
@@ -298,7 +298,7 @@ class Loader
     {
         // 不提供命名空间则添加fallback dir
         if (!$prefix) {
-            self::$fallbackDirsPsr0 = array_merge(self::$fallbackDirsPsr0, (array) $path);
+            self::$fallbackDirsPsr0 = array_merge(self::$fallbackDirsPsr0, (array)$path);
             return true;
         }
 
@@ -309,7 +309,7 @@ class Loader
         }
         self::$prefixesPsr0[$firstLetter][$prefix] = array_merge(
             self::$prefixesPsr0[$firstLetter][$prefix],
-            (array) $path
+            (array)$path
         );
         return true;
     }
@@ -324,7 +324,7 @@ class Loader
     {
         // 不提供命名空间则添加fallback dir
         if (!$prefix) {
-            self::$fallbackDirsPsr4 = array_merge(self::$fallbackDirsPsr4, (array) $path);
+            self::$fallbackDirsPsr4 = array_merge(self::$fallbackDirsPsr4, (array)$path);
             return true;
         }
 
@@ -342,7 +342,7 @@ class Loader
             self::$prefixDirsPsr4[$prefix] = [];
         }
 
-        self::$prefixDirsPsr4[$prefix] = array_merge(self::$prefixDirsPsr4[$prefix], (array) $path);
+        self::$prefixDirsPsr4[$prefix] = array_merge(self::$prefixDirsPsr4[$prefix], (array)$path);
         return true;
     }
 
@@ -366,7 +366,7 @@ class Loader
      */
     public static function setUseIncludePath($useIncludePath = false)
     {
-        self::$useIncludePath = (bool) $useIncludePath;
+        self::$useIncludePath = (bool)$useIncludePath;
     }
 
     /**
@@ -377,8 +377,6 @@ class Loader
     {
         return self::$useIncludePath;
     }
-
-
 }
 
 // 隔离作用域加载文件
