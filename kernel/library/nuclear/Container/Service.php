@@ -185,7 +185,8 @@ class Service
             /**
              * 定义为类名
              */
-            $instance = Factory::createInstanceByClass($definition, $parameters);
+            $instance = Container::createInstanceByClass($definition, $parameters);
+
         } else if (is_object($definition)) {
             /**
              * 定义为闭包对象或实例对象
@@ -198,7 +199,7 @@ class Service
                     $definition = Closure::bind($definition, $dependency);
                 }
 
-                $instance = Factory::createInstanceByClosure($definition, $parameters);
+                $instance = Container::createInstanceByClosure($definition, $parameters);
             } else {
                 /**
                  * 定义已经是实例对象
@@ -206,7 +207,7 @@ class Service
                 $instance = $definition;
             }
         } else if (is_array($definition)) {
-            $instance = Factory::createInstanceByArray($definition, $parameters, $dependency);
+            $instance = Container::createInstanceByArray($definition, $parameters, $dependency);
         }
 
         /**
