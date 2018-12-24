@@ -5,7 +5,6 @@ namespace nuclear\Container;
 use Closure;
 use Exception;
 use nuclear\Container;
-use nuclear\Factory;
 
 /**
  * 容器服务单元类
@@ -164,6 +163,13 @@ class Service
         return null;
     }
 
+    /**
+     * 将服务解析为对象
+     * @param null|array $parameters
+     * @param Container|null $dependency
+     * @return bool|mixed|object|string|null
+     * @throws Exception
+     */
     public function resolve($parameters = null, Container $dependency = null)
     {
         $definition = $this->_definition;
@@ -185,7 +191,7 @@ class Service
             /**
              * 定义为类名
              */
-            $instance = Container::createInstanceByClass($definition, $parameters);
+            $instance = Container::createInstance($definition, $parameters);
 
         } else if (is_object($definition)) {
             /**
@@ -199,7 +205,7 @@ class Service
                     $definition = Closure::bind($definition, $dependency);
                 }
 
-                $instance = Container::createInstanceByClosure($definition, $parameters);
+                $instance = Container::invokeFunction($definition, $parameters);
             } else {
                 /**
                  * 定义已经是实例对象
@@ -207,7 +213,23 @@ class Service
                 $instance = $definition;
             }
         } else if (is_array($definition)) {
-            $instance = Container::createInstanceByArray($definition, $parameters, $dependency);
+            if (!isset($definition['className']) || !class_exists($definition['className'])) {
+                throw new Exception("Array definition must specify the right class name");
+            }
+
+            if (isset($definition['parameters'])) {
+                if (!is_array($definition['parameters']) || !is_string($definition['parameters'])) {
+                    throw new Exception("Parameters type must be array or string");
+                }
+
+                if (is_string($definition['parameters'])) {
+                    $definition['parameters'] = explode(',', $definition['parameters']);
+                }
+
+                $parameters = Container::mergeParameters($parameters, $definition['parameters']);
+            }
+
+            $instance = Container::createInstance($definition, $parameters);
         }
 
         /**
