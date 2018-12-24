@@ -125,11 +125,7 @@ class Container
             $reflect = new ReflectionFunction($function);
             $parameters = self::buildParameters($reflect, $parameters);
 
-            if ($parameters) {
-                return $reflect->invokeArgs($parameters);
-            } else {
-                return $reflect->invoke();
-            }
+            return $reflect->invokeArgs($parameters);
 
         } catch (ReflectionException $e) {
             return false;
