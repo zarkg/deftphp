@@ -2,9 +2,6 @@
 
 namespace nuclear;
 
-use ArrayAccess;
-use Closure;
-use Exception;
 use ReflectionClass;
 use ReflectionFunctionAbstract;
 use ReflectionFunction;
@@ -17,36 +14,88 @@ use nuclear\Container\Service;
  * @package nuclear
  * @author zarkg <admin@zarkg.com>
  */
-class Container implements ArrayAccess
+class Container
 {
+    /**
+     * @var array 已注册的服务对象列表
+     */
     private $services = [];
-    private $shared_instances = [];
 
-    // PSR-11
-    public function get($name, $params, $shared = false)
+    /**
+     * @var object 当前容器类的实例对象
+     */
+    private static $container;
+
+    /**
+     * 注册服务
+     * @param string $name 服务名
+     * @param mixed $definition 服务定义
+     * @param bool $shared 是否注册为共享服务
+     * @return Service
+     */
+    public static function set($name, $definition, $shared = true)
     {
-
-        // 如果定义了服务就根据定义的服务生成
-        // 没有定义则尝试生成新的实例
-        // 如果需要共享的实例则将新实例加入实例列表
+        $service = new Service($name, $definition, $shared);
+        self::getContainer()->services[$name] = $service;
+        return $service;
     }
 
-    public function resolve($name, $params)
+    /**
+     * 移除已注册的服务
+     * @param string $name
+     */
+    public static function remove($name)
     {
-
+        unset(self::getContainer()->services[$name]);
     }
 
-    public function has($id)
+    /**
+     * 获取服务描述的对象
+     * @param string $name 服务名
+     * @param array $params 实例化参数
+     * @return mixed
+     */
+    public static function get($name, $params = [])
     {
+        $container = self::getContainer();
 
+        if (!isset($container->services[$name])) {
+            $container->services[$name] = new Service($name, $name, false);
+        }
+
+        return $container->services[$name]->resolve($params);
     }
 
-    public function set($name, $definition, $shared = false)
+    /**
+     * 判断服务是否已注册
+     * @param string $name 服务名
+     * @return bool
+     */
+    public static function has($name)
     {
-
+        return isset(self::getContainer()->services[$name]);
     }
 
-    public static function createInstanceByClass($className, $parameters = [])
+    /**
+     * 获取当前容器类的对象
+     * @return Container|object
+     */
+    private static function getContainer()
+    {
+        if (!self::$container) {
+            self::$container = new self();
+        }
+
+        return self::$container;
+    }
+
+    /**
+     * 创建指定类的对象
+     * @param $className
+     * @param array $parameters
+     * @return bool|object
+     */
+    public static function createInstance($className, $parameters = [])
     {
         try {
             $reflect = new ReflectionClass($className);
@@ -60,12 +109,41 @@ class Container implements ArrayAccess
         }
     }
 
-    public static function createInstanceByClosure(Closure $closure, $parameters)
+    /**
+     * 执行函数
+     * @param callable $function
+     * @param array $parameters
+     * @return bool|object
+     */
+    public static function invokeFunction(callable $function, $parameters = [])
     {
+        try {
+            if (!is_callable($function)) {
+                return false;
+            }
 
+            $reflect = new ReflectionFunction($function);
+            $parameters = self::buildParameters($reflect, $parameters);
+
+            if ($parameters) {
+                return $reflect->invokeArgs($parameters);
+            } else {
+                return $reflect->invoke();
+            }
+
+        } catch (ReflectionException $e) {
+            return false;
+        }
     }
 
-    private static function buildParameters(ReflectionFunctionAbstract $reflect, $parameters)
+    /**
+     * 构造函数或方法参数
+     * @param ReflectionFunctionAbstract $reflect
+     * @param array $parameters
+     * @return array
+     * @throws ReflectionException
+     */
+    private static function buildParameters(ReflectionFunctionAbstract $reflect, $parameters = [])
     {
         $number = $reflect->getNumberOfParameters();
         if (0 == $number) {
@@ -87,34 +165,31 @@ class Container implements ArrayAccess
             } elseif ($isOptional) {
                 $parameters[$position] = $arg->getDefaultValue();
             } elseif ($class) {
-                $parameters[$position] = self::createInstanceByClass($class->name);
+                $parameters[$position] = self::createInstance($class->name);
             } else {
-                throw new Exception("Parameter '" . $arg->getName() . "' not match");
+                throw new ReflectionException("Parameter '" . $arg->getName() . "' not match");
             }
         }
 
         return $parameters;
     }
 
-    // ArrayAccess
-    public function offsetExists($offset)
+    /**
+     * 合并参数
+     * @param array $parameters
+     * @param array $reference
+     * @return mixed
+     */
+    public static function mergeParameters($parameters, $reference)
     {
-        // TODO: Implement offsetExists() method.
-    }
+        $count = count($parameters) > count($reference) ? count($parameters) : count($reference);
 
-    public function offsetGet($offset)
-    {
-        // TODO: Implement offsetGet() method.
-    }
+        for ($i = 0; $i < $count; $i++) {
+            if (!isset($parameters[$i]) && isset($reference[$i])) {
+                $parameters[$i] = $reference[$i];
+            }
+        }
 
-    public function offsetSet($offset, $value)
-    {
-        // TODO: Implement offsetSet() method.
+        return $parameters;
     }
-
-    public function offsetUnset($offset)
-    {
-        // TODO: Implement offsetUnset() method.
-    }
-
 }
