@@ -3,6 +3,9 @@
     "description": "simple framwork",
     "type": "project",
     "require": {
+        "slim/slim": "^3.11",
+        "symfony/routing": "^4.2",
+        "pimple/pimple": "^3.2"
     },
     "license": "BSD",
     "authors": [

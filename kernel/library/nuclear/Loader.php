@@ -92,6 +92,7 @@ class Loader
 
         // 注册系统命名空间
         self::addPsr4('nuclear\\', __DIR__);
+        self::addPsr4('app\\', self::getRootPath() . 'app');
     }
 
     /**
